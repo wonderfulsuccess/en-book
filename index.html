@@ -18,7 +18,8 @@
 
       body {
         margin: 0;
-        font-family: "Comic Sans MS", "Marker Felt", "Nunito", Avenir, sans-serif;
+        font-family: "Comic Sans MS", "Marker Felt", "Nunito", Avenir,
+          sans-serif;
         background: var(--bg-gradient);
         min-height: 100vh;
         display: flex;
@@ -81,7 +82,8 @@
         font-size: 1rem;
         font-family: inherit;
         box-sizing: border-box;
-        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+        transition: transform 0.15s ease, box-shadow 0.15s ease,
+          border-color 0.15s ease;
       }
 
       select:focus,
@@ -286,7 +288,7 @@
   </head>
   <body>
     <header>
-      <h1>🎧 <span>快乐标记员</span> 时间探险</h1>
+      <h1>🎧 <span>Simi快乐标记员</span> 时间探险</h1>
     </header>
     <main>
       <section class="card">
@@ -326,7 +328,7 @@
       </section>
 
       <section class="card">
-        <h2>老师角落（需口令）</h2>
+        <h2>爸爸角落（需口令）</h2>
         <div id="password-gate" class="password-box">
           <label for="password-input">输入口令打开标记工具</label>
           <input
@@ -381,7 +383,7 @@
         </div>
       </section>
     </main>
-    <footer>和孩子一起，让声音变成彩色的记号吧！</footer>
+    <footer>和宝民小学的Simi一起，学习英语！</footer>
 
     <script>
       const PASSWORD = "rainbow123";
@@ -612,7 +614,11 @@
           (tag) => Number(tag.number) === numberValue
         );
         if (exists) {
-          showStatus(adminStatus, `编号 P${numberValue} 已存在，请换一个。`, true);
+          showStatus(
+            adminStatus,
+            `编号 P${numberValue} 已存在，请换一个。`,
+            true
+          );
           return;
         }
 
@@ -701,11 +707,7 @@
           showStatus(adminStatus, "标签文件已加载");
         } catch (error) {
           console.error(error);
-          showStatus(
-            adminStatus,
-            error.message || "加载标签文件失败",
-            true
-          );
+          showStatus(adminStatus, error.message || "加载标签文件失败", true);
         }
       }
 
