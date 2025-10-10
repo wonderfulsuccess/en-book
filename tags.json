@@ -1,0 +1,35 @@
+{
+  "files": [
+    {
+      "name": "Unit1.mp3",
+      "path": "audio/Unit1.mp3",
+      "tags": []
+    },
+    {
+      "name": "Unit2.mp3",
+      "path": "audio/Unit2.mp3",
+      "tags": []
+    },
+    {
+      "name": "Unit3.mp3",
+      "path": "audio/Unit3.mp3",
+      "tags": []
+    },
+    {
+      "name": "Unit4.mp3",
+      "path": "audio/Unit4.mp3",
+      "tags": []
+    },
+    {
+      "name": "Unit5.mp3",
+      "path": "audio/Unit5.mp3",
+      "tags": []
+    },
+    {
+      "name": "Unit6.mp3",
+      "path": "audio/Unit6.mp3",
+      "tags": []
+    }
+  ],
+  "nextLabelNumber": 1
+}
