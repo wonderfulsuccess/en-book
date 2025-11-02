@@ -1,877 +1,366 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="utf-8" />
-    <title>快乐标记员</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-      :root {
-        color-scheme: light;
-        --bg-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-        --accent: #ff7ec6;
-        --accent-dark: #ef4f91;
-        --accent-lite: #ffe0f1;
-        --text-dark: #3a2e39;
-        --card-bg: rgba(255, 255, 255, 0.92);
-        --border-radius: 24px;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>宝民小学 Simi 音频乐园</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: linear-gradient(180deg, #fdf3ff 0%, #f1fcff 100%);
+      --primary: #ff7a59;
+      --primary-dark: #ff4c2a;
+      --accent: #5ec2ff;
+      --accent-dark: #0090e0;
+      --card-bg: rgba(255, 255, 255, 0.9);
+      --text: #303030;
+      --muted: #606060;
+      font-size: clamp(16px, 2.4vw, 20px);
+    }
 
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Comic Sans MS", "Marker Felt", "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.5rem 1rem 2.5rem;
+    }
+
+    h1 {
+      margin: 0.5rem 0 1rem;
+      font-size: clamp(1.8rem, 6vw, 2.6rem);
+      text-align: center;
+      color: var(--primary);
+      text-shadow: 0 4px 0 rgba(0,0,0,0.1);
+      letter-spacing: 0.05em;
+    }
+
+    .card {
+      width: min(640px, 100%);
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 1.5rem;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--muted);
+    }
+
+    select {
+      border: 3px solid var(--accent);
+      border-radius: 18px;
+      padding: 0.8rem 0.9rem;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--accent-dark);
+      background: #fff;
+      box-shadow: inset 0 3px 0 rgba(94, 194, 255, 0.3);
+      appearance: none;
+    }
+
+    .play-toggle {
+      padding: 1.3rem;
+      font-size: clamp(1.6rem, 6vw, 2.5rem);
+      border: none;
+      border-radius: 50px;
+      background: radial-gradient(circle at top, #ffd36b 0%, #ffaf2d 100%);
+      color: #7b3600;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 12px 0 #e38a02, 0 18px 35px rgba(255, 175, 45, 0.4);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .play-toggle:active {
+      transform: translateY(5px);
+      box-shadow: 0 6px 0 #e38a02, 0 10px 20px rgba(255, 175, 45, 0.45);
+    }
+
+    .skip-group {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+
+    .skip-button {
+      padding: 1.1rem;
+      border-radius: 20px;
+      border: none;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .skip-button[data-shift="3"] {
+      background: linear-gradient(135deg, #65e2a4 0%, #19b87d 100%);
+      box-shadow: 0 10px 0 #119260;
+    }
+
+    .skip-button[data-shift="-3"] {
+      background: linear-gradient(135deg, #ff8bd0 0%, #ff57ae 100%);
+      box-shadow: 0 10px 0 #e51486;
+    }
+
+    .skip-button[data-shift="5"] {
+      background: linear-gradient(135deg, #67a5ff 0%, #2b75ff 100%);
+      box-shadow: 0 10px 0 #1e57c8;
+    }
+
+    .skip-button[data-shift="-5"] {
+      background: linear-gradient(135deg, #ff7373 0%, #ff3838 100%);
+      box-shadow: 0 10px 0 #d41515;
+    }
+
+    .skip-button:active {
+      transform: translateY(4px);
+      box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .now-playing {
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .footer {
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 480px) {
       body {
-        margin: 0;
-        font-family: "Comic Sans MS", "Marker Felt", "Nunito", Avenir,
-          sans-serif;
-        background: var(--bg-gradient);
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        color: var(--text-dark);
-      }
-
-      header {
-        padding: 1.5rem 2rem;
-        text-align: center;
-      }
-
-      h1 {
-        margin: 0;
-        font-size: clamp(2rem, 4vw, 3rem);
-        display: inline-flex;
-        align-items: center;
-        gap: 0.6rem;
-      }
-
-      h1 span {
-        display: inline-block;
-        padding: 0.2rem 0.8rem;
-        background: var(--accent);
-        color: white;
-        border-radius: 999px;
-        box-shadow: 0 8px 20px rgba(239, 79, 145, 0.3);
-      }
-
-      main {
-        flex: 1;
-        display: grid;
-        gap: 1.5rem;
-        padding: 0 1.2rem 2rem;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        padding: 1rem;
       }
 
       .card {
-        background: var(--card-bg);
-        border-radius: var(--border-radius);
-        padding: 1.5rem;
-        box-shadow: 0 12px 30px rgba(255, 126, 198, 0.25);
-        backdrop-filter: blur(8px);
+        padding: 1.2rem;
       }
 
-      label {
-        font-weight: bold;
-        display: block;
-        margin-bottom: 0.4rem;
+      .skip-group {
+        grid-template-columns: repeat(2, 1fr);
       }
 
-      select,
-      input,
-      button,
-      textarea {
-        width: 100%;
-        padding: 0.7rem 1rem;
-        border-radius: 999px;
-        border: 2px solid transparent;
-        font-size: 1rem;
-        font-family: inherit;
-        box-sizing: border-box;
-        transition: transform 0.15s ease, box-shadow 0.15s ease,
-          border-color 0.15s ease;
-      }
-
-      select:focus,
-      input:focus,
-      textarea:focus {
-        outline: none;
-        border-color: var(--accent);
-        box-shadow: 0 0 0 4px rgba(255, 126, 198, 0.2);
-      }
-
-      button {
-        background: var(--accent);
-        color: white;
-        border: none;
-        cursor: pointer;
-        font-weight: bold;
-      }
-
-      button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 18px rgba(239, 79, 145, 0.25);
-        background: var(--accent-dark);
-      }
-
-      .audio-player {
-        background: var(--accent-lite);
-        padding: 1rem;
-        border-radius: 20px;
-        display: grid;
-        gap: 0.8rem;
-      }
-
-      audio {
-        width: 100%;
-        border-radius: 16px;
-      }
-
-      .progress-row {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        align-items: center;
-        gap: 0.6rem;
-      }
-
-      .progress-row input[type="range"] {
-        -webkit-appearance: none;
-        height: 12px;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.7);
-        overflow: hidden;
-      }
-
-      .progress-row input[type="range"]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: var(--accent);
-        box-shadow: 0 0 0 4px rgba(255, 126, 198, 0.25);
-      }
-
-      .progress-row input[type="range"]::-moz-range-thumb {
-        width: 18px;
-        height: 18px;
-        border: none;
-        border-radius: 50%;
-        background: var(--accent);
-        box-shadow: 0 0 0 4px rgba(255, 126, 198, 0.25);
-      }
-
-      .time-bubble {
-        font-size: 0.85rem;
-        font-weight: bold;
-        color: var(--accent-dark);
-      }
-
-      .tag-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.6rem;
-        margin-top: 1rem;
-        max-height: 320px;
-        overflow-y: auto;
-        padding-right: 0.4rem;
-      }
-
-      .tag-item {
-        display: grid;
-        grid-template-columns: 100px 1fr auto;
-        align-items: center;
-        gap: 0.5rem;
-        background: white;
-        border-radius: 16px;
-        padding: 0.6rem 0.8rem;
-        border: 2px solid transparent;
-        transition: transform 0.12s ease;
-      }
-
-      .tag-item:hover {
-        transform: translateX(4px);
-      }
-
-      .tag-item button {
-        width: auto;
-        padding: 0.4rem 0.9rem;
-        border-radius: 12px;
-      }
-
-      .tag-label {
+      .skip-button {
         font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--accent-dark);
-      }
-
-      .tag-note {
-        font-size: 0.9rem;
-        color: #6b5866;
-      }
-
-      .hidden {
-        display: none !important;
-      }
-
-      .admin-actions {
-        display: grid;
-        gap: 0.8rem;
-        margin-top: 1rem;
-      }
-
-      .flex-row {
-        display: flex;
-        gap: 0.6rem;
-      }
-
-      .flex-row > button {
-        flex: 1;
-      }
-
-      .pill {
-        display: inline-block;
-        padding: 0.2rem 0.8rem;
-        border-radius: 999px;
-        background: #ffe88a;
-        color: #784009;
-        font-size: 0.85rem;
-        font-weight: 700;
-      }
-
-      .password-box {
-        display: grid;
-        gap: 0.6rem;
-      }
-
-      textarea {
-        border-radius: 16px;
-        min-height: 80px;
-      }
-
-      .note-hint {
-        font-size: 0.8rem;
-        color: #6b5866;
-      }
-
-      .status {
-        font-size: 0.9rem;
-        color: #2f7d32;
-      }
-
-      .status.error {
-        color: #d62828;
-      }
-
-      footer {
-        text-align: center;
         padding: 1rem;
-        font-size: 0.85rem;
-        color: rgba(58, 46, 57, 0.7);
       }
+    }
+  </style>
+</head>
+<body>
+  <h1>宝民小学 Simi 音频乐园</h1>
+  <main class="card">
+    <div class="selector">
+      <label for="audioSelect">选择音频：</label>
+      <select id="audioSelect" aria-label="选择想要收听的音频">
+      </select>
+    </div>
 
-      @media (max-width: 720px) {
-        main {
-          grid-template-columns: 1fr;
-        }
+    <div class="now-playing" id="nowPlaying">请选择要播放的音频</div>
 
-        .tag-item {
-          grid-template-columns: 80px 1fr;
-          grid-template-areas:
-            "label play"
-            "note note";
-        }
+    <button class="play-toggle" id="playToggle" type="button">▶ 开始播放</button>
 
-        .tag-item button {
-          grid-area: play;
-        }
+    <div class="skip-group">
+      <button class="skip-button" data-shift="-3" type="button">↩ 后退3秒</button>
+      <button class="skip-button" data-shift="3" type="button">↪ 前进3秒</button>
+      <button class="skip-button" data-shift="-5" type="button">⏪ 后退5秒</button>
+      <button class="skip-button" data-shift="5" type="button">⏩ 前进5秒</button>
+    </div>
 
-        .tag-note {
-          grid-area: note;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <h1>🎧 <span>Simi快乐标记员</span> 时间探险</h1>
-    </header>
-    <main>
-      <section class="card">
-        <h2>选择单元</h2>
-        <label for="audio-select">音频列表</label>
-        <select id="audio-select"></select>
-        <div class="audio-player">
-          <audio id="audio-player" controls preload="metadata">
-            您的浏览器不支持音频播放，请更换或升级浏览器。
-          </audio>
-          <div class="progress-row">
-            <div class="time-bubble" id="time-current">00:00</div>
-            <input
-              type="range"
-              id="progress-bar"
-              value="0"
-              min="0"
-              max="100"
-              step="0.01"
-            />
-            <div class="time-bubble" id="time-total">00:00</div>
-          </div>
-          <div class="flex-row">
-            <button id="play-from-start">从头开始</button>
-            <button id="pause-btn">暂停</button>
-          </div>
-          <div id="now-playing" class="pill">准备开始小小冒险！</div>
-        </div>
-      </section>
+    <audio id="audioPlayer" preload="metadata"></audio>
+  </main>
 
-      <section class="card">
-        <h2>标签清单</h2>
-        <p class="note-hint">
-          点开任何标签，音乐会从它开始播放，直到遇到下一个伙伴。
-        </p>
-        <div id="tag-list" class="tag-list"></div>
-      </section>
+  <footer class="footer">网页所有权归 宝民小学 Simi 所有</footer>
 
-      <section class="card">
-        <h2>爸爸角落（需口令）</h2>
-        <div id="password-gate" class="password-box">
-          <label for="password-input">输入口令打开标记工具</label>
-          <input
-            id="password-input"
-            type="password"
-            autocomplete="off"
-            placeholder="请输入口令"
-          />
-          <button id="password-submit">进入秘密基地</button>
-          <div id="password-status" class="status"></div>
-        </div>
+  <script>
+    (function () {
+      const audioFiles = [
+        { file: "01_2AUnit_1.mp3", name: "Unit 1 快乐课堂" },
+        { file: "02_2AUnit_2.mp3", name: "Unit 2 小小冒险" },
+        { file: "03_2AUnit_3.mp3", name: "Unit 3 欢乐时刻" },
+        { file: "04_2AUnit_4.mp3", name: "Unit 4 趣味探索" },
+        { file: "05_2AUnit_5.mp3", name: "Unit 5 魔法英语" },
+        { file: "06_2AUnit_6.mp3", name: "Unit 6 快乐假期" },
+        { file: "07_2AWord_list.mp3", name: "单词大挑战" }
+      ];
 
-        <div id="admin-panel" class="hidden">
-          <div class="pill">新增标签前，请输入想要的编号（P1, P2, ...）</div>
-          <div class="admin-actions">
-            <div>
-              <label for="tag-number">为标签选择一个数字</label>
-              <input
-                id="tag-number"
-                type="number"
-                min="1"
-                step="1"
-                placeholder="例如：12"
-              />
-              <label for="tag-note">给标签写个提示（可选）</label>
-              <textarea
-                id="tag-note"
-                placeholder="例如：重点句子、好玩的部分……"
-              ></textarea>
-              <div class="note-hint">
-                点击「使用当前时间添加标签」，系统会自动记录当前播放时间。
-              </div>
-            </div>
-            <div class="flex-row">
-              <button id="add-tag-btn">使用当前时间添加标签</button>
-              <button id="refresh-time-btn">刷新到当前播放时间</button>
-            </div>
-            <div class="flex-row">
-              <button id="open-json-btn" type="button">打开标签文件</button>
-              <button id="save-json-btn" type="button">保存更新到文件</button>
-            </div>
-            <button id="download-json-btn" type="button">
-              另存为新的标签文件
-            </button>
-            <div class="note-hint">
-              ⭐ 推荐做法：使用 Chrome 浏览器，在此页面打开并保存 `tags.json`
-              文件，这样可以直接写回原文件。若浏览器不支持，也可以使用「另存」
-              功能下载新的 JSON，再手动替换。
-            </div>
-            <div id="admin-status" class="status"></div>
-          </div>
-        </div>
-      </section>
-    </main>
-    <footer>和宝民小学的Simi一起，学习英语！</footer>
+      const STORAGE_KEY = "simiAudioProgress";
 
-    <script>
-      const PASSWORD = "rainbow123";
-      const passwordInput = document.getElementById("password-input");
-      const passwordSubmit = document.getElementById("password-submit");
-      const passwordStatus = document.getElementById("password-status");
-      const adminPanel = document.getElementById("admin-panel");
-      const audioSelect = document.getElementById("audio-select");
-      const audioPlayer = document.getElementById("audio-player");
-      const playFromStartBtn = document.getElementById("play-from-start");
-      const pauseBtn = document.getElementById("pause-btn");
-      const tagListEl = document.getElementById("tag-list");
-      const nowPlayingEl = document.getElementById("now-playing");
-      const addTagBtn = document.getElementById("add-tag-btn");
-      const refreshTimeBtn = document.getElementById("refresh-time-btn");
-      const tagNumberInput = document.getElementById("tag-number");
-      const tagNoteInput = document.getElementById("tag-note");
-      const adminStatus = document.getElementById("admin-status");
-      const openJsonBtn = document.getElementById("open-json-btn");
-      const saveJsonBtn = document.getElementById("save-json-btn");
-      const downloadJsonBtn = document.getElementById("download-json-btn");
-      const progressBar = document.getElementById("progress-bar");
-      const timeCurrentEl = document.getElementById("time-current");
-      const timeTotalEl = document.getElementById("time-total");
+      const audioPlayer = document.getElementById("audioPlayer");
+      const audioSelect = document.getElementById("audioSelect");
+      const nowPlaying = document.getElementById("nowPlaying");
+      const playToggle = document.getElementById("playToggle");
+      const skipButtons = document.querySelectorAll(".skip-button");
 
-      let tagData = null;
-      let currentFile = null;
-      let segmentEnd = null;
-      let passwordUnlocked = false;
-      let tagsFileHandle = null;
-      let isScrubbing = false;
+      let savedState = null;
+      let lastSavedTime = 0;
 
-      async function loadInitialData() {
-        try {
-          const response = await fetch("tags.json", { cache: "no-store" });
-          if (!response.ok) {
-            throw new Error("tags.json 加载失败");
-          }
-          const data = await response.json();
-          tagData = data;
-          normalizeData();
-          updateNumberHint();
-          populateAudioSelect();
-          bindAudioFile(audioSelect.value);
-        } catch (error) {
-          console.error(error);
-          showStatus(
-            adminStatus,
-            "无法加载 tags.json，请先使用「打开标签文件」选择本地文件。",
-            true
-          );
-        }
-      }
-
-      function normalizeData() {
-        if (!tagData.files) {
-          tagData.files = [];
-        }
-        tagData.files.sort((a, b) => a.name.localeCompare(b.name));
-        tagData.files.forEach((file) => {
-          if (!Array.isArray(file.tags)) {
-            file.tags = [];
-          }
-          file.tags.sort((a, b) => (a.time || 0) - (b.time || 0));
-        });
-        recalculateNextLabelNumber();
-      }
-
-      function populateAudioSelect() {
+      function populateSelect() {
         audioSelect.innerHTML = "";
-        tagData.files.forEach((file) => {
+        audioFiles.forEach(({ file, name }) => {
           const option = document.createElement("option");
-          option.value = file.path || file.name;
-          option.textContent = file.name.replace(/\.mp3$/i, "");
+          option.value = file;
+          option.textContent = name;
           audioSelect.appendChild(option);
         });
       }
 
-      function bindAudioFile(filePath) {
-        currentFile = tagData.files.find(
-          (file) => file.path === filePath || file.name === filePath
-        );
-        if (!currentFile) {
-          showStatus(adminStatus, "找不到对应的音频配置。", true);
-          resetProgressUI();
-          return;
+      function loadSavedState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          savedState = raw ? JSON.parse(raw) : null;
+        } catch (err) {
+          savedState = null;
         }
-        audioPlayer.src = currentFile.path || `audio/${currentFile.name}`;
-        audioPlayer.currentTime = 0;
-        audioPlayer.pause();
-        segmentEnd = null;
-        isScrubbing = false;
-        resetProgressUI();
-        nowPlayingEl.textContent = `当前单元：${
-          currentFile.name.replace(/\.mp3$/i, "") || "未知"
-        }`;
-        renderTagList();
       }
 
-      function renderTagList() {
-        tagListEl.innerHTML = "";
-        if (!currentFile) return;
-        if (currentFile.tags.length === 0) {
-          const emptyHint = document.createElement("div");
-          emptyHint.className = "note-hint";
-          emptyHint.textContent = "还没有标签，快用右侧老师角落添加吧！";
-          tagListEl.appendChild(emptyHint);
-          return;
-        }
-
-        currentFile.tags
-          .slice()
-          .sort((a, b) => a.time - b.time)
-          .forEach((tag, index, arr) => {
-            const nextTag = arr[index + 1];
-            const item = document.createElement("div");
-            item.className = "tag-item";
-
-            const label = document.createElement("div");
-            label.className = "tag-label";
-            label.textContent = `P${tag.number}`;
-            item.appendChild(label);
-
-            const note = document.createElement("div");
-            note.className = "tag-note";
-            const timeText = formatTime(tag.time);
-            note.textContent = `${timeText} ${
-              tag.note ? "｜" + tag.note : ""
-            }`.trim();
-            item.appendChild(note);
-
-            const playButton = document.createElement("button");
-            playButton.textContent = "播放";
-            playButton.addEventListener("click", () =>
-              playFromTag(tag, nextTag)
-            );
-            item.appendChild(playButton);
-
-            if (passwordUnlocked) {
-              const deleteButton = document.createElement("button");
-              deleteButton.textContent = "删除";
-              deleteButton.style.background = "#ffd166";
-              deleteButton.style.color = "#7a4100";
-              deleteButton.addEventListener("click", () => {
-                requestDeleteTag(tag.number);
-              });
-              item.appendChild(deleteButton);
-            }
-
-            tagListEl.appendChild(item);
-          });
-      }
-
-      function formatTime(seconds) {
-        if (Number.isNaN(seconds)) return "--:--";
-        const totalSeconds = Math.max(0, Math.floor(seconds));
-        const mins = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
-        const secs = String(totalSeconds % 60).padStart(2, "0");
-        return `${mins}:${secs}`;
-      }
-
-      function playFromTag(tag, nextTag) {
+      function saveState(time) {
         if (!audioPlayer.src) return;
-        const startTime = Math.max(0, tag.time || 0);
-        const endTime = nextTag ? Math.max(startTime, nextTag.time || 0) : null;
-
-        ensureSegmentPlayback(startTime, endTime, tag.number);
-      }
-
-      function ensureSegmentPlayback(start, end, labelNumber) {
-        const performPlay = () => {
-          const safeStart =
-            audioPlayer.duration && !Number.isNaN(audioPlayer.duration)
-              ? Math.min(start, audioPlayer.duration)
-              : start;
-          audioPlayer.currentTime = safeStart;
-          segmentEnd = end;
-          audioPlayer.play().catch((err) => {
-            console.error("播放失败", err);
-          });
-          nowPlayingEl.textContent = `正在播放：P${labelNumber} → ${
-            end ? formatTime(end) : "结尾"
-          }`;
+        const state = {
+          file: audioSelect.value,
+          time: Math.max(0, Math.min(audioPlayer.duration || time || 0, time || 0))
         };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        lastSavedTime = state.time;
+      }
 
-        if (audioPlayer.readyState < 1 || Number.isNaN(audioPlayer.duration)) {
-          const onReady = () => {
-            audioPlayer.removeEventListener("loadedmetadata", onReady);
-            performPlay();
-          };
-          audioPlayer.addEventListener("loadedmetadata", onReady);
-          audioPlayer.load();
+      function setAudioSource(file) {
+        const src = `audio/${file}`;
+        audioPlayer.src = src;
+        audioPlayer.load();
+        nowPlaying.textContent = `正在播放：${audioSelect.options[audioSelect.selectedIndex].text}`;
+        playToggle.textContent = "▶ 开始播放";
+        playToggle.dataset.state = "paused";
+      }
+
+      function initializeFromSaved() {
+        if (!savedState) return;
+        const index = audioFiles.findIndex(item => item.file === savedState.file);
+        if (index >= 0) {
+          audioSelect.value = savedState.file;
+          setAudioSource(savedState.file);
+        }
+      }
+
+      function togglePlayback() {
+        if (!audioPlayer.src) {
+          setAudioSource(audioSelect.value);
+        }
+        if (audioPlayer.paused) {
+          audioPlayer.play();
         } else {
-          performPlay();
-        }
-      }
-
-      function getLabelNumberForTime(time) {
-        const tag = currentFile?.tags.find((item) => item.time === time);
-        return tag ? tag.number : "?";
-      }
-
-      function handlePasswordSubmit() {
-        const value = passwordInput.value.trim();
-        if (value === PASSWORD) {
-          passwordUnlocked = true;
-          passwordStatus.textContent = "口令正确，欢迎进入！";
-          passwordStatus.classList.remove("error");
-          passwordInput.value = "";
-          document.getElementById("password-gate").classList.add("hidden");
-          adminPanel.classList.remove("hidden");
-          renderTagList();
-        } else {
-          passwordStatus.textContent = "口令不对哦，再试一次！";
-          passwordStatus.classList.add("error");
-        }
-      }
-
-      function addTagAtCurrentTime() {
-        if (!currentFile) return;
-        const inputValue = tagNumberInput.value.trim();
-        const numberValue = Number.parseInt(inputValue, 10);
-        if (!inputValue || Number.isNaN(numberValue) || numberValue <= 0) {
-          showStatus(adminStatus, "请先输入一个大于 0 的编号。", true);
-          return;
-        }
-        const exists = currentFile.tags.some(
-          (tag) => Number(tag.number) === numberValue
-        );
-        if (exists) {
-          showStatus(
-            adminStatus,
-            `编号 P${numberValue} 已存在，请换一个。`,
-            true
-          );
-          return;
-        }
-
-        const currentTime = audioPlayer.currentTime || 0;
-        const note = tagNoteInput.value.trim();
-        currentFile.tags.push({
-          number: numberValue,
-          time: currentTime,
-          note,
-        });
-        currentFile.tags.sort((a, b) => a.time - b.time);
-        recalculateNextLabelNumber();
-        updateNumberHint();
-        tagNumberInput.value = "";
-        tagNoteInput.value = "";
-        showStatus(
-          adminStatus,
-          `已添加标签 P${numberValue} （${formatTime(currentTime)}）`
-        );
-        renderTagList();
-      }
-
-      function refreshCurrentTime() {
-        showStatus(
-          adminStatus,
-          `当前播放进度：${formatTime(audioPlayer.currentTime || 0)}`
-        );
-      }
-
-      function deleteTag(number) {
-        if (!currentFile) return;
-        const originalLength = currentFile.tags.length;
-        currentFile.tags = currentFile.tags.filter(
-          (tag) => tag.number !== number
-        );
-        if (currentFile.tags.length !== originalLength) {
-          showStatus(adminStatus, `已移除标签 P${number}`);
-          renderTagList();
-          recalculateNextLabelNumber();
-          updateNumberHint();
-        }
-      }
-
-      function requestDeleteTag(number) {
-        const answer = window.prompt("请输入口令确认删除标签：");
-        if (answer === null) return;
-        if (answer.trim() !== PASSWORD) {
-          showStatus(adminStatus, "口令不正确，无法删除标签。", true);
-          return;
-        }
-        deleteTag(number);
-      }
-
-      function showStatus(el, message, isError = false) {
-        el.textContent = message;
-        el.classList.toggle("error", Boolean(isError));
-        if (!message) return;
-        window.clearTimeout(el._timer);
-        el._timer = window.setTimeout(() => {
-          el.textContent = "";
-        }, 4000);
-      }
-
-      async function openJsonFile() {
-        try {
-          if (!window.showOpenFilePicker) {
-            throw new Error("当前浏览器不支持文件系统访问 API");
-          }
-          const [handle] = await window.showOpenFilePicker({
-            types: [
-              {
-                description: "JSON Files",
-                accept: { "application/json": [".json"] },
-              },
-            ],
-            multiple: false,
-          });
-          tagsFileHandle = handle;
-          const file = await handle.getFile();
-          const text = await file.text();
-          tagData = JSON.parse(text);
-          normalizeData();
-          updateNumberHint();
-          populateAudioSelect();
-          bindAudioFile(audioSelect.value);
-          showStatus(adminStatus, "标签文件已加载");
-        } catch (error) {
-          console.error(error);
-          showStatus(adminStatus, error.message || "加载标签文件失败", true);
-        }
-      }
-
-      async function saveJsonFile() {
-        try {
-          if (!tagsFileHandle) {
-            throw new Error("请先使用“打开标签文件”选择 tags.json");
-          }
-          const writable = await tagsFileHandle.createWritable();
-          await writable.write(
-            JSON.stringify(tagData, null, 2).replace(/\n/g, "\r\n")
-          );
-          await writable.close();
-          showStatus(adminStatus, "标签文件已更新并保存");
-        } catch (error) {
-          console.error(error);
-          showStatus(adminStatus, error.message || "保存失败", true);
-        }
-      }
-
-      function downloadJsonFile() {
-        try {
-          const blob = new Blob([JSON.stringify(tagData, null, 2)], {
-            type: "application/json",
-          });
-          const url = URL.createObjectURL(blob);
-          const anchor = document.createElement("a");
-          anchor.href = url;
-          anchor.download = "tags-export.json";
-          anchor.click();
-          URL.revokeObjectURL(url);
-          showStatus(adminStatus, "已下载标签文件副本");
-        } catch (error) {
-          console.error(error);
-          showStatus(adminStatus, "下载失败，请重试", true);
-        }
-      }
-
-      audioPlayer.addEventListener("timeupdate", () => {
-        if (!isScrubbing) {
-          updateProgressUI();
-        }
-        if (
-          segmentEnd !== null &&
-          !Number.isNaN(segmentEnd) &&
-          audioPlayer.currentTime >= segmentEnd - 0.05
-        ) {
           audioPlayer.pause();
-          segmentEnd = null;
-          nowPlayingEl.textContent = "到达标签末尾，暂停啦！";
         }
+      }
+
+      function updatePlayButton() {
+        if (audioPlayer.paused) {
+          playToggle.textContent = "▶ 开始播放";
+          playToggle.dataset.state = "paused";
+        } else {
+          playToggle.textContent = "⏸ 暂停播放";
+          playToggle.dataset.state = "playing";
+        }
+      }
+
+      function seekBy(seconds) {
+        if (!audioPlayer.src) {
+          setAudioSource(audioSelect.value);
+        }
+        if (Number.isFinite(audioPlayer.duration)) {
+          const target = Math.max(0, Math.min(audioPlayer.duration, audioPlayer.currentTime + seconds));
+          audioPlayer.currentTime = target;
+        }
+        if (audioPlayer.paused) {
+          audioPlayer.play().catch(() => {});
+        }
+      }
+
+      populateSelect();
+      loadSavedState();
+      initializeFromSaved();
+
+      audioSelect.addEventListener("change", () => {
+        const { value } = audioSelect;
+        setAudioSource(value);
+        nowPlaying.textContent = `正在播放：${audioSelect.options[audioSelect.selectedIndex].text}`;
+        saveState(0);
       });
 
+      playToggle.addEventListener("click", togglePlayback);
+
+      skipButtons.forEach(button => {
+        button.addEventListener("click", () => {
+          const shift = Number(button.dataset.shift);
+          seekBy(shift);
+        });
+      });
+
+      audioPlayer.addEventListener("play", updatePlayButton);
+      audioPlayer.addEventListener("pause", updatePlayButton);
+
       audioPlayer.addEventListener("loadedmetadata", () => {
-        updateProgressUI(true);
+        if (
+          savedState &&
+          savedState.file === audioSelect.value &&
+          typeof savedState.time === "number" &&
+          savedState.time > 0 &&
+          savedState.time < audioPlayer.duration
+        ) {
+          audioPlayer.currentTime = savedState.time;
+        }
+        nowPlaying.textContent = `正在播放：${audioSelect.options[audioSelect.selectedIndex].text}`;
       });
 
       audioPlayer.addEventListener("ended", () => {
-        segmentEnd = null;
-        nowPlayingEl.textContent = "歌曲结束，准备重新冒险！";
+        saveState(0);
+        updatePlayButton();
       });
 
-      playFromStartBtn.addEventListener("click", () => {
-        segmentEnd = null;
-        audioPlayer.currentTime = 0;
-        audioPlayer.play();
-        nowPlayingEl.textContent = "从头开始播放～";
-      });
-
-      pauseBtn.addEventListener("click", () => {
-        audioPlayer.pause();
-        segmentEnd = null;
-        nowPlayingEl.textContent = "已暂停，休息一下～";
-      });
-
-      progressBar.addEventListener("input", (event) => {
-        isScrubbing = true;
-        const value = Number.parseFloat(event.target.value);
-        if (!Number.isNaN(value)) {
-          timeCurrentEl.textContent = formatTime(value);
+      audioPlayer.addEventListener("timeupdate", () => {
+        if (!Number.isFinite(audioPlayer.duration)) return;
+        if (Math.abs(audioPlayer.currentTime - lastSavedTime) >= 1) {
+          saveState(audioPlayer.currentTime);
         }
       });
 
-      progressBar.addEventListener("change", (event) => {
-        const value = Number.parseFloat(event.target.value);
-        if (!Number.isNaN(value)) {
-          audioPlayer.currentTime = value;
-          segmentEnd = null;
-          nowPlayingEl.textContent = `跳转到 ${formatTime(value)}，准备播放～`;
-          audioPlayer.play().catch(() => {});
-          updateProgressUI(true);
-        }
-        isScrubbing = false;
-      });
-
-      audioSelect.addEventListener("change", (event) => {
-        bindAudioFile(event.target.value);
-      });
-
-      passwordSubmit.addEventListener("click", handlePasswordSubmit);
-      passwordInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-          handlePasswordSubmit();
-        }
-      });
-
-      addTagBtn.addEventListener("click", addTagAtCurrentTime);
-      refreshTimeBtn.addEventListener("click", refreshCurrentTime);
-      openJsonBtn.addEventListener("click", openJsonFile);
-      saveJsonBtn.addEventListener("click", saveJsonFile);
-      downloadJsonBtn.addEventListener("click", downloadJsonFile);
-
-      document.addEventListener("DOMContentLoaded", loadInitialData);
-
-      function updateProgressUI(force = false) {
-        if (!audioPlayer.duration || Number.isNaN(audioPlayer.duration)) {
-          resetProgressUI(force);
-          return;
-        }
-        const current = audioPlayer.currentTime || 0;
-        progressBar.max = audioPlayer.duration;
-        if (!isScrubbing) {
-          progressBar.value = current;
-          timeCurrentEl.textContent = formatTime(current);
-        }
-        timeTotalEl.textContent = formatTime(audioPlayer.duration);
-      }
-
-      function resetProgressUI(force = false) {
-        if (!progressBar) return;
-        progressBar.value = 0;
-        progressBar.max = 100;
-        if (timeCurrentEl && (force || !isScrubbing)) {
-          timeCurrentEl.textContent = "00:00";
-        }
-        if (timeTotalEl) {
-          timeTotalEl.textContent = "00:00";
+      if (!audioPlayer.src && audioFiles.length > 0) {
+        setAudioSource(audioFiles[0].file);
+        if (!savedState) {
+          nowPlaying.textContent = `正在播放：${audioSelect.options[audioSelect.selectedIndex].text}`;
         }
       }
 
-      function recalculateNextLabelNumber() {
-        if (!tagData || !Array.isArray(tagData.files)) {
-          if (tagData) {
-            tagData.nextLabelNumber = 1;
-          }
-          return;
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          saveState(audioPlayer.currentTime);
         }
-        let maxNumber = 0;
-        tagData.files.forEach((file) => {
-          (file.tags || []).forEach((tag) => {
-            const numeric = Number(tag.number);
-            if (!Number.isNaN(numeric)) {
-              maxNumber = Math.max(maxNumber, numeric);
-            }
-          });
-        });
-        tagData.nextLabelNumber = Math.max(maxNumber + 1, 1);
-      }
+      });
 
-      function updateNumberHint() {
-        if (!tagNumberInput) return;
-        const suggestion = Math.max(tagData?.nextLabelNumber || 1, 1);
-        tagNumberInput.placeholder = `例如：${suggestion}`;
-      }
-    </script>
-  </body>
+      window.addEventListener("beforeunload", () => {
+        saveState(audioPlayer.currentTime);
+      });
+    })();
+  </script>
+</body>
 </html>
