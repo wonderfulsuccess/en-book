@@ -385,6 +385,9 @@
         let savedState = null;
         let lastSavedTime = 0;
         let isUserScrubbing = false;
+        let loadingSuppressed = false;
+        let loadingSuppressionTimeout = null;
+        let waitingIndicatorTimeout = null;
 
         function formatTime(seconds) {
           if (!Number.isFinite(seconds) || seconds < 0) {
@@ -401,7 +404,50 @@
 
         function showLoadingIndicator(visible) {
           if (!loadingIndicator) return;
+          if (!visible) {
+            cancelPendingLoadingIndicator();
+          }
           loadingIndicator.classList.toggle("active", Boolean(visible));
+        }
+
+        function cancelPendingLoadingIndicator() {
+          if (waitingIndicatorTimeout) {
+            clearTimeout(waitingIndicatorTimeout);
+            waitingIndicatorTimeout = null;
+          }
+        }
+
+        function suppressLoadingIndicator(duration = 600) {
+          loadingSuppressed = true;
+          cancelPendingLoadingIndicator();
+          showLoadingIndicator(false);
+          if (loadingSuppressionTimeout) {
+            clearTimeout(loadingSuppressionTimeout);
+          }
+          loadingSuppressionTimeout = setTimeout(() => {
+            loadingSuppressed = false;
+            loadingSuppressionTimeout = null;
+          }, Math.max(0, duration));
+        }
+
+        function stopLoadingSuppression() {
+          loadingSuppressed = false;
+          if (loadingSuppressionTimeout) {
+            clearTimeout(loadingSuppressionTimeout);
+            loadingSuppressionTimeout = null;
+          }
+        }
+
+        function requestLoadingIndicator(delay = 180) {
+          cancelPendingLoadingIndicator();
+          waitingIndicatorTimeout = setTimeout(() => {
+            waitingIndicatorTimeout = null;
+            if (loadingSuppressed) {
+              requestLoadingIndicator(180);
+              return;
+            }
+            showLoadingIndicator(true);
+          }, Math.max(0, delay));
         }
 
         function resetProgressUI() {
@@ -485,7 +531,9 @@
           }`;
           playToggle.textContent = "▶ 开始播放";
           playToggle.dataset.state = "paused";
+          stopLoadingSuppression();
           resetProgressUI();
+          cancelPendingLoadingIndicator();
           showLoadingIndicator(true);
         }
 
@@ -526,6 +574,7 @@
             setAudioSource(audioSelect.value);
           }
           if (Number.isFinite(audioPlayer.duration)) {
+            suppressLoadingIndicator();
             const target = Math.max(
               0,
               Math.min(audioPlayer.duration, audioPlayer.currentTime + seconds)
@@ -562,23 +611,27 @@
         if (progressSlider) {
           progressSlider.addEventListener("pointerdown", (event) => {
             if (progressSlider.disabled) return;
+            suppressLoadingIndicator();
             progressSlider.setPointerCapture(event.pointerId);
             isUserScrubbing = true;
           });
 
           progressSlider.addEventListener("pointerup", () => {
             if (progressSlider.disabled) return;
+            suppressLoadingIndicator();
             audioPlayer.currentTime = Number(progressSlider.value);
             updateSliderFill(progressSlider.value, progressSlider.max);
             isUserScrubbing = false;
           });
 
           progressSlider.addEventListener("pointercancel", () => {
+            suppressLoadingIndicator();
             isUserScrubbing = false;
           });
 
           progressSlider.addEventListener("lostpointercapture", () => {
             if (isUserScrubbing) {
+              suppressLoadingIndicator();
               audioPlayer.currentTime = Number(progressSlider.value);
               updateSliderFill(progressSlider.value, progressSlider.max);
               isUserScrubbing = false;
@@ -587,6 +640,9 @@
 
           progressSlider.addEventListener("input", () => {
             if (progressSlider.disabled) return;
+            if (isUserScrubbing) {
+              suppressLoadingIndicator();
+            }
             const value = Number(progressSlider.value);
             updateCurrentTimeDisplay(value);
             updateSliderFill(value, progressSlider.max);
@@ -594,6 +650,7 @@
 
           progressSlider.addEventListener("change", () => {
             if (progressSlider.disabled) return;
+            suppressLoadingIndicator();
             audioPlayer.currentTime = Number(progressSlider.value);
             updateSliderFill(progressSlider.value, progressSlider.max);
             isUserScrubbing = false;
@@ -604,7 +661,7 @@
         audioPlayer.addEventListener("pause", updatePlayButton);
 
         audioPlayer.addEventListener("loadstart", () => {
-          showLoadingIndicator(true);
+          requestLoadingIndicator();
         });
 
         audioPlayer.addEventListener("loadedmetadata", () => {
@@ -623,6 +680,7 @@
           updateProgressFromPlayer({ includeTotal: true });
           updateCurrentTimeDisplay(audioPlayer.currentTime);
           showLoadingIndicator(false);
+          stopLoadingSuppression();
         });
 
         audioPlayer.addEventListener("ended", () => {
@@ -641,22 +699,25 @@
         audioPlayer.addEventListener("canplaythrough", () => {
           updateProgressFromPlayer({ includeTotal: true });
           showLoadingIndicator(false);
+          stopLoadingSuppression();
         });
 
         audioPlayer.addEventListener("playing", () => {
           showLoadingIndicator(false);
+          stopLoadingSuppression();
         });
 
         audioPlayer.addEventListener("waiting", () => {
-          showLoadingIndicator(true);
+          requestLoadingIndicator();
         });
 
         audioPlayer.addEventListener("stalled", () => {
-          showLoadingIndicator(true);
+          requestLoadingIndicator();
         });
 
         audioPlayer.addEventListener("error", () => {
           showLoadingIndicator(false);
+          stopLoadingSuppression();
         });
 
         if (!audioPlayer.src && audioFiles.length > 0) {
