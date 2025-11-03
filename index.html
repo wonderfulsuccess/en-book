@@ -1,366 +1,685 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>宝民小学 Simi 音频乐园</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --bg: linear-gradient(180deg, #fdf3ff 0%, #f1fcff 100%);
-      --primary: #ff7a59;
-      --primary-dark: #ff4c2a;
-      --accent: #5ec2ff;
-      --accent-dark: #0090e0;
-      --card-bg: rgba(255, 255, 255, 0.9);
-      --text: #303030;
-      --muted: #606060;
-      font-size: clamp(16px, 2.4vw, 20px);
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>宝民小学 Simi 音频乐园</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: linear-gradient(180deg, #fdf3ff 0%, #f1fcff 100%);
+        --primary: #ff7a59;
+        --primary-dark: #ff4c2a;
+        --accent: #5ec2ff;
+        --accent-dark: #0090e0;
+        --card-bg: rgba(255, 255, 255, 0.9);
+        --text: #303030;
+        --muted: #606060;
+        font-size: clamp(16px, 2.4vw, 20px);
+      }
 
-    * {
-      box-sizing: border-box;
-    }
+      * {
+        box-sizing: border-box;
+      }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "Comic Sans MS", "Marker Felt", "Helvetica Neue", Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 1.5rem 1rem 2.5rem;
-    }
-
-    h1 {
-      margin: 0.5rem 0 1rem;
-      font-size: clamp(1.8rem, 6vw, 2.6rem);
-      text-align: center;
-      color: var(--primary);
-      text-shadow: 0 4px 0 rgba(0,0,0,0.1);
-      letter-spacing: 0.05em;
-    }
-
-    .card {
-      width: min(640px, 100%);
-      background: var(--card-bg);
-      border-radius: 24px;
-      padding: 1.5rem;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
-      backdrop-filter: blur(8px);
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-
-    label {
-      font-weight: 600;
-      font-size: 1rem;
-      color: var(--muted);
-    }
-
-    select {
-      border: 3px solid var(--accent);
-      border-radius: 18px;
-      padding: 0.8rem 0.9rem;
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: var(--accent-dark);
-      background: #fff;
-      box-shadow: inset 0 3px 0 rgba(94, 194, 255, 0.3);
-      appearance: none;
-    }
-
-    .play-toggle {
-      padding: 1.3rem;
-      font-size: clamp(1.6rem, 6vw, 2.5rem);
-      border: none;
-      border-radius: 50px;
-      background: radial-gradient(circle at top, #ffd36b 0%, #ffaf2d 100%);
-      color: #7b3600;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 12px 0 #e38a02, 0 18px 35px rgba(255, 175, 45, 0.4);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    .play-toggle:active {
-      transform: translateY(5px);
-      box-shadow: 0 6px 0 #e38a02, 0 10px 20px rgba(255, 175, 45, 0.45);
-    }
-
-    .skip-group {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.75rem;
-    }
-
-    .skip-button {
-      padding: 1.1rem;
-      border-radius: 20px;
-      border: none;
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #fff;
-      cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    .skip-button[data-shift="3"] {
-      background: linear-gradient(135deg, #65e2a4 0%, #19b87d 100%);
-      box-shadow: 0 10px 0 #119260;
-    }
-
-    .skip-button[data-shift="-3"] {
-      background: linear-gradient(135deg, #ff8bd0 0%, #ff57ae 100%);
-      box-shadow: 0 10px 0 #e51486;
-    }
-
-    .skip-button[data-shift="5"] {
-      background: linear-gradient(135deg, #67a5ff 0%, #2b75ff 100%);
-      box-shadow: 0 10px 0 #1e57c8;
-    }
-
-    .skip-button[data-shift="-5"] {
-      background: linear-gradient(135deg, #ff7373 0%, #ff3838 100%);
-      box-shadow: 0 10px 0 #d41515;
-    }
-
-    .skip-button:active {
-      transform: translateY(4px);
-      box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
-    }
-
-    .now-playing {
-      text-align: center;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--muted);
-    }
-
-    .footer {
-      margin-top: 1.5rem;
-      font-size: 0.9rem;
-      color: var(--muted);
-      text-align: center;
-    }
-
-    @media (max-width: 480px) {
       body {
-        padding: 1rem;
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Comic Sans MS", "Marker Felt", "Helvetica Neue", Arial,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1.5rem 1rem 2.5rem;
+      }
+
+      h1 {
+        margin: 0.5rem 0 1rem;
+        font-size: clamp(1.8rem, 6vw, 2.6rem);
+        text-align: center;
+        color: var(--primary);
+        text-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
+        letter-spacing: 0.05em;
       }
 
       .card {
-        padding: 1.2rem;
+        width: min(640px, 100%);
+        background: var(--card-bg);
+        border-radius: 24px;
+        padding: 1.5rem;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        backdrop-filter: blur(8px);
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+      }
+
+      label {
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--muted);
+      }
+
+      select {
+        border: 3px solid var(--accent);
+        border-radius: 18px;
+        padding: 0.8rem 0.9rem;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--accent-dark);
+        background: #fff;
+        box-shadow: inset 0 3px 0 rgba(94, 194, 255, 0.3);
+        appearance: none;
+      }
+
+      .play-toggle {
+        padding: 1.3rem;
+        font-size: clamp(1.6rem, 6vw, 2.5rem);
+        border: none;
+        border-radius: 50px;
+        background: radial-gradient(circle at top, #ffd36b 0%, #ffaf2d 100%);
+        color: #7b3600;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 12px 0 #e38a02, 0 18px 35px rgba(255, 175, 45, 0.4);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .play-toggle:active {
+        transform: translateY(5px);
+        box-shadow: 0 6px 0 #e38a02, 0 10px 20px rgba(255, 175, 45, 0.45);
       }
 
       .skip-group {
-        grid-template-columns: repeat(2, 1fr);
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
       }
 
       .skip-button {
+        padding: 1.1rem;
+        border-radius: 20px;
+        border: none;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #fff;
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .skip-button[data-shift="-3"],
+      .skip-button[data-shift="3"] {
+        background: linear-gradient(135deg, #65e2a4 0%, #19b87d 100%);
+        box-shadow: 0 10px 0 #119260;
+      }
+
+      .skip-button[data-shift="-5"],
+      .skip-button[data-shift="5"] {
+        background: linear-gradient(135deg, #67a5ff 0%, #2b75ff 100%);
+        box-shadow: 0 10px 0 #1e57c8;
+      }
+
+      .skip-button[data-shift="-10"],
+      .skip-button[data-shift="10"] {
+        background: linear-gradient(135deg, #ff9e5a 0%, #ff6a00 100%);
+        box-shadow: 0 10px 0 #d45500;
+      }
+
+      .skip-button[data-shift="-20"],
+      .skip-button[data-shift="20"] {
+        background: linear-gradient(135deg, #b17bff 0%, #7a35ff 100%);
+        box-shadow: 0 10px 0 #4d1eb8;
+      }
+
+      .skip-button:active {
+        transform: translateY(4px);
+        box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+      }
+
+      .now-playing {
+        text-align: center;
         font-size: 1.1rem;
-        padding: 1rem;
-      }
-    }
-  </style>
-</head>
-<body>
-  <h1>宝民小学 Simi 音频乐园</h1>
-  <main class="card">
-    <div class="selector">
-      <label for="audioSelect">选择音频：</label>
-      <select id="audioSelect" aria-label="选择想要收听的音频">
-      </select>
-    </div>
-
-    <div class="now-playing" id="nowPlaying">请选择要播放的音频</div>
-
-    <button class="play-toggle" id="playToggle" type="button">▶ 开始播放</button>
-
-    <div class="skip-group">
-      <button class="skip-button" data-shift="-3" type="button">↩ 后退3秒</button>
-      <button class="skip-button" data-shift="3" type="button">↪ 前进3秒</button>
-      <button class="skip-button" data-shift="-5" type="button">⏪ 后退5秒</button>
-      <button class="skip-button" data-shift="5" type="button">⏩ 前进5秒</button>
-    </div>
-
-    <audio id="audioPlayer" preload="metadata"></audio>
-  </main>
-
-  <footer class="footer">网页所有权归 宝民小学 Simi 所有</footer>
-
-  <script>
-    (function () {
-      const audioFiles = [
-        { file: "01_2AUnit_1.mp3", name: "Unit 1 快乐课堂" },
-        { file: "02_2AUnit_2.mp3", name: "Unit 2 小小冒险" },
-        { file: "03_2AUnit_3.mp3", name: "Unit 3 欢乐时刻" },
-        { file: "04_2AUnit_4.mp3", name: "Unit 4 趣味探索" },
-        { file: "05_2AUnit_5.mp3", name: "Unit 5 魔法英语" },
-        { file: "06_2AUnit_6.mp3", name: "Unit 6 快乐假期" },
-        { file: "07_2AWord_list.mp3", name: "单词大挑战" }
-      ];
-
-      const STORAGE_KEY = "simiAudioProgress";
-
-      const audioPlayer = document.getElementById("audioPlayer");
-      const audioSelect = document.getElementById("audioSelect");
-      const nowPlaying = document.getElementById("nowPlaying");
-      const playToggle = document.getElementById("playToggle");
-      const skipButtons = document.querySelectorAll(".skip-button");
-
-      let savedState = null;
-      let lastSavedTime = 0;
-
-      function populateSelect() {
-        audioSelect.innerHTML = "";
-        audioFiles.forEach(({ file, name }) => {
-          const option = document.createElement("option");
-          option.value = file;
-          option.textContent = name;
-          audioSelect.appendChild(option);
-        });
+        font-weight: 600;
+        color: var(--muted);
       }
 
-      function loadSavedState() {
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          savedState = raw ? JSON.parse(raw) : null;
-        } catch (err) {
-          savedState = null;
+      .loading-indicator {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-radius: 18px;
+        background: rgba(94, 194, 255, 0.18);
+        color: var(--accent-dark);
+        font-weight: 600;
+      }
+
+      .loading-indicator.active {
+        display: flex;
+      }
+
+      .loading-indicator .spinner {
+        width: 1.8rem;
+        height: 1.8rem;
+        border-radius: 50%;
+        border: 4px solid rgba(0, 144, 224, 0.25);
+        border-top-color: var(--accent-dark);
+        animation: spin 1s linear infinite;
+      }
+
+      .progress {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .time-display {
+        display: flex;
+        justify-content: space-between;
+        font-weight: 600;
+        color: var(--muted);
+        font-size: 1rem;
+      }
+
+      .progress input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 20px;
+        border-radius: 14px;
+        background: linear-gradient(
+          90deg,
+          var(--accent) 0%,
+          rgba(94, 194, 255, 0.35) 100%
+        );
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .progress input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--primary);
+        border: 4px solid #fff;
+        box-shadow: 0 6px 12px rgba(255, 122, 89, 0.45);
+        cursor: pointer;
+        margin-top: -4px;
+      }
+
+      .progress input[type="range"]::-moz-range-thumb {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--primary);
+        border: 4px solid #fff;
+        box-shadow: 0 6px 12px rgba(255, 122, 89, 0.45);
+        cursor: pointer;
+      }
+
+      .progress input[type="range"]::-ms-thumb {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--primary);
+        border: 4px solid #fff;
+        box-shadow: 0 6px 12px rgba(255, 122, 89, 0.45);
+        cursor: pointer;
+      }
+
+      .progress input[type="range"]::-webkit-slider-runnable-track {
+        height: 20px;
+        border-radius: 14px;
+      }
+
+      .progress input[type="range"]::-moz-range-track {
+        height: 20px;
+        border-radius: 14px;
+        background: transparent;
+      }
+
+      .progress input[type="range"]::-ms-track {
+        height: 20px;
+        border-radius: 14px;
+        background: transparent;
+        border-color: transparent;
+        color: transparent;
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
         }
       }
 
-      function saveState(time) {
-        if (!audioPlayer.src) return;
-        const state = {
-          file: audioSelect.value,
-          time: Math.max(0, Math.min(audioPlayer.duration || time || 0, time || 0))
-        };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        lastSavedTime = state.time;
+      .footer {
+        margin-top: 1.5rem;
+        font-size: 0.9rem;
+        color: var(--muted);
+        text-align: center;
       }
 
-      function setAudioSource(file) {
-        const src = `audio/${file}`;
-        audioPlayer.src = src;
-        audioPlayer.load();
-        nowPlaying.textContent = `正在播放：${audioSelect.options[audioSelect.selectedIndex].text}`;
-        playToggle.textContent = "▶ 开始播放";
-        playToggle.dataset.state = "paused";
-      }
+      @media (max-width: 480px) {
+        body {
+          padding: 1rem;
+        }
 
-      function initializeFromSaved() {
-        if (!savedState) return;
-        const index = audioFiles.findIndex(item => item.file === savedState.file);
-        if (index >= 0) {
-          audioSelect.value = savedState.file;
-          setAudioSource(savedState.file);
+        .card {
+          padding: 1.2rem;
+        }
+
+        .skip-group {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .skip-button {
+          font-size: 1.1rem;
+          padding: 1rem;
         }
       }
+    </style>
+  </head>
+  <body>
+    <h1>Simi的学习工具箱</h1>
+    <main class="card">
+      <div class="selector">
+        <label for="audioSelect">选择音频：</label>
+        <select id="audioSelect" aria-label="选择想要收听的音频"></select>
+      </div>
 
-      function togglePlayback() {
-        if (!audioPlayer.src) {
-          setAudioSource(audioSelect.value);
-        }
-        if (audioPlayer.paused) {
-          audioPlayer.play();
-        } else {
-          audioPlayer.pause();
-        }
-      }
+      <div class="now-playing" id="nowPlaying">请选择要播放的音频</div>
 
-      function updatePlayButton() {
-        if (audioPlayer.paused) {
+      <div class="progress" aria-live="off">
+        <div class="time-display">
+          <span id="currentTime">00:00</span>
+          <span id="totalTime">00:00</span>
+        </div>
+        <input
+          type="range"
+          id="progressSlider"
+          min="0"
+          max="100"
+          value="0"
+          step="0.1"
+          aria-label="播放进度"
+        />
+      </div>
+
+      <button class="play-toggle" id="playToggle" type="button">
+        ▶ 开始播放
+      </button>
+
+      <div
+        class="loading-indicator"
+        id="loadingIndicator"
+        role="status"
+        aria-live="polite"
+      >
+        <span class="spinner" aria-hidden="true"></span>
+        <span>音频加载中…</span>
+      </div>
+
+      <div class="skip-group">
+        <button class="skip-button" data-shift="-3" type="button">
+          ⏪ 后退3秒
+        </button>
+        <button class="skip-button" data-shift="3" type="button">
+          ⏩ 前进3秒
+        </button>
+        <button class="skip-button" data-shift="-5" type="button">
+          ⏪ 后退5秒
+        </button>
+        <button class="skip-button" data-shift="5" type="button">
+          ⏩ 前进5秒
+        </button>
+        <button class="skip-button" data-shift="-10" type="button">
+          ⏪ 后退10秒
+        </button>
+        <button class="skip-button" data-shift="10" type="button">
+          ⏩ 前进10秒
+        </button>
+        <button class="skip-button" data-shift="-20" type="button">
+          ⏪ 后退20秒
+        </button>
+        <button class="skip-button" data-shift="20" type="button">
+          ⏩ 前进20秒
+        </button>
+      </div>
+
+      <audio id="audioPlayer" preload="metadata"></audio>
+    </main>
+
+    <footer class="footer">宝民小学二(4)班Simi设计</footer>
+
+    <script>
+      (function () {
+        const audioFiles = [
+          { file: "01_2AUnit_1.mp3", name: "Unit 1 快乐课堂" },
+          { file: "02_2AUnit_2.mp3", name: "Unit 2 小小冒险" },
+          { file: "03_2AUnit_3.mp3", name: "Unit 3 欢乐时刻" },
+          { file: "04_2AUnit_4.mp3", name: "Unit 4 趣味探索" },
+          { file: "05_2AUnit_5.mp3", name: "Unit 5 魔法英语" },
+          { file: "06_2AUnit_6.mp3", name: "Unit 6 快乐假期" },
+          { file: "07_2AWord_list.mp3", name: "单词大挑战" },
+        ];
+
+        const STORAGE_KEY = "simiAudioProgress";
+
+        const audioPlayer = document.getElementById("audioPlayer");
+        const audioSelect = document.getElementById("audioSelect");
+        const nowPlaying = document.getElementById("nowPlaying");
+        const playToggle = document.getElementById("playToggle");
+        const skipButtons = document.querySelectorAll(".skip-button");
+        const loadingIndicator = document.getElementById("loadingIndicator");
+        const progressSlider = document.getElementById("progressSlider");
+        const currentTimeLabel = document.getElementById("currentTime");
+        const totalTimeLabel = document.getElementById("totalTime");
+
+        let savedState = null;
+        let lastSavedTime = 0;
+        let isUserScrubbing = false;
+
+        function formatTime(seconds) {
+          if (!Number.isFinite(seconds) || seconds < 0) {
+            return "00:00";
+          }
+          const totalSeconds = Math.floor(seconds);
+          const minutes = Math.floor(totalSeconds / 60);
+          const secs = totalSeconds % 60;
+          return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(
+            2,
+            "0"
+          )}`;
+        }
+
+        function showLoadingIndicator(visible) {
+          if (!loadingIndicator) return;
+          loadingIndicator.classList.toggle("active", Boolean(visible));
+        }
+
+        function resetProgressUI() {
+          if (!progressSlider) return;
+          progressSlider.disabled = true;
+          progressSlider.value = 0;
+          progressSlider.max = 0;
+          currentTimeLabel.textContent = "00:00";
+          totalTimeLabel.textContent = "00:00";
+          updateSliderFill(0, 1);
+        }
+
+        function updateCurrentTimeDisplay(value) {
+          currentTimeLabel.textContent = formatTime(value);
+        }
+
+        function updateSliderFill(value, max) {
+          if (!progressSlider) return;
+          const safeMax = Number(max);
+          const safeValue = Number(value);
+          const percentage =
+            safeMax > 0
+              ? Math.min(Math.max(safeValue / safeMax, 0), 1) * 100
+              : 0;
+          const expressedPercent = `${percentage}%`;
+          progressSlider.style.background = `linear-gradient(90deg, var(--accent) 0%, var(--accent) ${expressedPercent}, rgba(94, 194, 255, 0.35) ${expressedPercent}, rgba(94, 194, 255, 0.35) 100%)`;
+        }
+
+        function updateProgressFromPlayer({ includeTotal = false } = {}) {
+          if (!progressSlider || !Number.isFinite(audioPlayer.duration)) return;
+          if (includeTotal) {
+            totalTimeLabel.textContent = formatTime(audioPlayer.duration);
+            progressSlider.max = audioPlayer.duration;
+            progressSlider.disabled = false;
+          }
+          if (!isUserScrubbing) {
+            progressSlider.value = audioPlayer.currentTime;
+            updateCurrentTimeDisplay(audioPlayer.currentTime);
+          }
+          updateSliderFill(progressSlider.value, progressSlider.max);
+        }
+
+        function populateSelect() {
+          audioSelect.innerHTML = "";
+          audioFiles.forEach(({ file, name }) => {
+            const option = document.createElement("option");
+            option.value = file;
+            option.textContent = name;
+            audioSelect.appendChild(option);
+          });
+        }
+
+        function loadSavedState() {
+          try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            savedState = raw ? JSON.parse(raw) : null;
+          } catch (err) {
+            savedState = null;
+          }
+        }
+
+        function saveState(time) {
+          if (!audioPlayer.src) return;
+          const state = {
+            file: audioSelect.value,
+            time: Math.max(
+              0,
+              Math.min(audioPlayer.duration || time || 0, time || 0)
+            ),
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          lastSavedTime = state.time;
+        }
+
+        function setAudioSource(file) {
+          const src = `audio/${file}`;
+          audioPlayer.src = src;
+          audioPlayer.load();
+          nowPlaying.textContent = `正在播放：${
+            audioSelect.options[audioSelect.selectedIndex].text
+          }`;
           playToggle.textContent = "▶ 开始播放";
           playToggle.dataset.state = "paused";
-        } else {
-          playToggle.textContent = "⏸ 暂停播放";
-          playToggle.dataset.state = "playing";
+          resetProgressUI();
+          showLoadingIndicator(true);
         }
-      }
 
-      function seekBy(seconds) {
-        if (!audioPlayer.src) {
-          setAudioSource(audioSelect.value);
+        function initializeFromSaved() {
+          if (!savedState) return;
+          const index = audioFiles.findIndex(
+            (item) => item.file === savedState.file
+          );
+          if (index >= 0) {
+            audioSelect.value = savedState.file;
+            setAudioSource(savedState.file);
+          }
         }
-        if (Number.isFinite(audioPlayer.duration)) {
-          const target = Math.max(0, Math.min(audioPlayer.duration, audioPlayer.currentTime + seconds));
-          audioPlayer.currentTime = target;
+
+        function togglePlayback() {
+          if (!audioPlayer.src) {
+            setAudioSource(audioSelect.value);
+          }
+          if (audioPlayer.paused) {
+            audioPlayer.play();
+          } else {
+            audioPlayer.pause();
+          }
         }
-        if (audioPlayer.paused) {
-          audioPlayer.play().catch(() => {});
+
+        function updatePlayButton() {
+          if (audioPlayer.paused) {
+            playToggle.textContent = "▶ 开始播放";
+            playToggle.dataset.state = "paused";
+          } else {
+            playToggle.textContent = "⏸ 暂停播放";
+            playToggle.dataset.state = "playing";
+          }
         }
-      }
 
-      populateSelect();
-      loadSavedState();
-      initializeFromSaved();
+        function seekBy(seconds) {
+          if (!audioPlayer.src) {
+            setAudioSource(audioSelect.value);
+          }
+          if (Number.isFinite(audioPlayer.duration)) {
+            const target = Math.max(
+              0,
+              Math.min(audioPlayer.duration, audioPlayer.currentTime + seconds)
+            );
+            audioPlayer.currentTime = target;
+          }
+          if (audioPlayer.paused) {
+            audioPlayer.play().catch(() => {});
+          }
+        }
 
-      audioSelect.addEventListener("change", () => {
-        const { value } = audioSelect;
-        setAudioSource(value);
-        nowPlaying.textContent = `正在播放：${audioSelect.options[audioSelect.selectedIndex].text}`;
-        saveState(0);
-      });
+        populateSelect();
+        loadSavedState();
+        initializeFromSaved();
 
-      playToggle.addEventListener("click", togglePlayback);
-
-      skipButtons.forEach(button => {
-        button.addEventListener("click", () => {
-          const shift = Number(button.dataset.shift);
-          seekBy(shift);
+        audioSelect.addEventListener("change", () => {
+          const { value } = audioSelect;
+          setAudioSource(value);
+          nowPlaying.textContent = `正在播放：${
+            audioSelect.options[audioSelect.selectedIndex].text
+          }`;
+          saveState(0);
         });
-      });
 
-      audioPlayer.addEventListener("play", updatePlayButton);
-      audioPlayer.addEventListener("pause", updatePlayButton);
+        playToggle.addEventListener("click", togglePlayback);
 
-      audioPlayer.addEventListener("loadedmetadata", () => {
-        if (
-          savedState &&
-          savedState.file === audioSelect.value &&
-          typeof savedState.time === "number" &&
-          savedState.time > 0 &&
-          savedState.time < audioPlayer.duration
-        ) {
-          audioPlayer.currentTime = savedState.time;
+        skipButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const shift = Number(button.dataset.shift);
+            seekBy(shift);
+          });
+        });
+
+        if (progressSlider) {
+          progressSlider.addEventListener("pointerdown", (event) => {
+            if (progressSlider.disabled) return;
+            progressSlider.setPointerCapture(event.pointerId);
+            isUserScrubbing = true;
+          });
+
+          progressSlider.addEventListener("pointerup", () => {
+            if (progressSlider.disabled) return;
+            audioPlayer.currentTime = Number(progressSlider.value);
+            updateSliderFill(progressSlider.value, progressSlider.max);
+            isUserScrubbing = false;
+          });
+
+          progressSlider.addEventListener("pointercancel", () => {
+            isUserScrubbing = false;
+          });
+
+          progressSlider.addEventListener("lostpointercapture", () => {
+            if (isUserScrubbing) {
+              audioPlayer.currentTime = Number(progressSlider.value);
+              updateSliderFill(progressSlider.value, progressSlider.max);
+              isUserScrubbing = false;
+            }
+          });
+
+          progressSlider.addEventListener("input", () => {
+            if (progressSlider.disabled) return;
+            const value = Number(progressSlider.value);
+            updateCurrentTimeDisplay(value);
+            updateSliderFill(value, progressSlider.max);
+          });
+
+          progressSlider.addEventListener("change", () => {
+            if (progressSlider.disabled) return;
+            audioPlayer.currentTime = Number(progressSlider.value);
+            updateSliderFill(progressSlider.value, progressSlider.max);
+            isUserScrubbing = false;
+          });
         }
-        nowPlaying.textContent = `正在播放：${audioSelect.options[audioSelect.selectedIndex].text}`;
-      });
 
-      audioPlayer.addEventListener("ended", () => {
-        saveState(0);
-        updatePlayButton();
-      });
+        audioPlayer.addEventListener("play", updatePlayButton);
+        audioPlayer.addEventListener("pause", updatePlayButton);
 
-      audioPlayer.addEventListener("timeupdate", () => {
-        if (!Number.isFinite(audioPlayer.duration)) return;
-        if (Math.abs(audioPlayer.currentTime - lastSavedTime) >= 1) {
+        audioPlayer.addEventListener("loadstart", () => {
+          showLoadingIndicator(true);
+        });
+
+        audioPlayer.addEventListener("loadedmetadata", () => {
+          if (
+            savedState &&
+            savedState.file === audioSelect.value &&
+            typeof savedState.time === "number" &&
+            savedState.time > 0 &&
+            savedState.time < audioPlayer.duration
+          ) {
+            audioPlayer.currentTime = savedState.time;
+          }
+          nowPlaying.textContent = `正在播放：${
+            audioSelect.options[audioSelect.selectedIndex].text
+          }`;
+          updateProgressFromPlayer({ includeTotal: true });
+          updateCurrentTimeDisplay(audioPlayer.currentTime);
+          showLoadingIndicator(false);
+        });
+
+        audioPlayer.addEventListener("ended", () => {
+          saveState(0);
+          updatePlayButton();
+        });
+
+        audioPlayer.addEventListener("timeupdate", () => {
+          if (!Number.isFinite(audioPlayer.duration)) return;
+          updateProgressFromPlayer();
+          if (Math.abs(audioPlayer.currentTime - lastSavedTime) >= 1) {
+            saveState(audioPlayer.currentTime);
+          }
+        });
+
+        audioPlayer.addEventListener("canplaythrough", () => {
+          updateProgressFromPlayer({ includeTotal: true });
+          showLoadingIndicator(false);
+        });
+
+        audioPlayer.addEventListener("playing", () => {
+          showLoadingIndicator(false);
+        });
+
+        audioPlayer.addEventListener("waiting", () => {
+          showLoadingIndicator(true);
+        });
+
+        audioPlayer.addEventListener("stalled", () => {
+          showLoadingIndicator(true);
+        });
+
+        audioPlayer.addEventListener("error", () => {
+          showLoadingIndicator(false);
+        });
+
+        if (!audioPlayer.src && audioFiles.length > 0) {
+          setAudioSource(audioFiles[0].file);
+          if (!savedState) {
+            nowPlaying.textContent = `正在播放：${
+              audioSelect.options[audioSelect.selectedIndex].text
+            }`;
+          }
+        }
+
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) {
+            saveState(audioPlayer.currentTime);
+          }
+        });
+
+        window.addEventListener("beforeunload", () => {
           saveState(audioPlayer.currentTime);
-        }
-      });
+        });
 
-      if (!audioPlayer.src && audioFiles.length > 0) {
-        setAudioSource(audioFiles[0].file);
-        if (!savedState) {
-          nowPlaying.textContent = `正在播放：${audioSelect.options[audioSelect.selectedIndex].text}`;
-        }
-      }
-
-      document.addEventListener("visibilitychange", () => {
-        if (document.hidden) {
-          saveState(audioPlayer.currentTime);
-        }
-      });
-
-      window.addEventListener("beforeunload", () => {
-        saveState(audioPlayer.currentTime);
-      });
-    })();
-  </script>
-</body>
+        resetProgressUI();
+      })();
+    </script>
+  </body>
 </html>
