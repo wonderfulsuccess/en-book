@@ -35,6 +35,80 @@
         padding: 1.5rem 1rem 2.5rem;
       }
 
+      .wechat-locked {
+        overflow: hidden;
+      }
+
+      .wechat-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        z-index: 999;
+      }
+
+      .wechat-overlay[hidden] {
+        display: none;
+      }
+
+      .wechat-message {
+        max-width: 520px;
+        background: #fffef7;
+        border-radius: 28px;
+        padding: 2rem 1.75rem;
+        text-align: center;
+        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.18);
+        border: 4px solid #ffd36b;
+      }
+
+      .wechat-message h2 {
+        margin-top: 0;
+        margin-bottom: 0.75rem;
+        font-size: 1.5rem;
+        color: #d35400;
+      }
+
+      .wechat-message p {
+        margin: 0 0 1.25rem;
+        color: #5c3900;
+        line-height: 1.5;
+      }
+
+      .wechat-link-box {
+        background: #fff;
+        border: 2px dashed #ffaf2d;
+        border-radius: 16px;
+        padding: 0.85rem;
+        font-weight: 700;
+        color: #ff6a00;
+        word-break: break-all;
+        margin-bottom: 1rem;
+      }
+
+      .wechat-copy-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        border-radius: 999px;
+        padding: 0.85rem 2.4rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #fff;
+        background: linear-gradient(135deg, #ff7a59 0%, #ff4c2a 100%);
+        box-shadow: 0 10px 25px rgba(255, 74, 42, 0.35);
+        cursor: pointer;
+      }
+
+      .wechat-copy-status {
+        margin-top: 0.75rem;
+        font-size: 0.95rem;
+        color: #5c3900;
+      }
+
       h1 {
         margin: 0.5rem 0 1rem;
         font-size: clamp(1.8rem, 6vw, 2.6rem);
@@ -287,6 +361,21 @@
     </style>
   </head>
   <body>
+    <div class="wechat-overlay" id="wechat-block" hidden>
+      <div class="wechat-message">
+        <h2>请在浏览器中打开</h2>
+        <p>
+          由于微信内置浏览器限制，请复制以下链接并粘贴到手机系统浏览器中打开，获得完整体验。
+        </p>
+        <div class="wechat-link-box" id="wechat-link">
+          https://wonderfulsuccess.github.io/en-book
+        </div>
+        <button class="wechat-copy-button" id="wechat-copy" type="button">
+          一键复制链接
+        </button>
+        <div class="wechat-copy-status" id="wechat-copy-status"></div>
+      </div>
+    </div>
     <h1>Simi的学习工具箱</h1>
     <main class="card">
       <div class="selector">
@@ -358,6 +447,72 @@
 
     <footer class="footer">宝民小学二(4)班Simi设计</footer>
 
+    <script>
+      (function () {
+        const overlay = document.getElementById("wechat-block");
+        if (!overlay) return;
+        const ua = navigator.userAgent || "";
+        if (!/micromessenger/i.test(ua)) return;
+
+        const copyButton = document.getElementById("wechat-copy");
+        const statusEl = document.getElementById("wechat-copy-status");
+        const targetUrl = "https://wonderfulsuccess.github.io/en-book";
+
+        const setStatus = (text, isSuccess) => {
+          if (!statusEl) return;
+          statusEl.textContent = text;
+          statusEl.style.color = isSuccess ? "#2b8116" : "#c0392b";
+        };
+
+        const fallbackCopy = () => {
+          const textArea = document.createElement("textarea");
+          textArea.value = targetUrl;
+          textArea.setAttribute("readonly", "");
+          textArea.style.position = "absolute";
+          textArea.style.left = "-9999px";
+          document.body.appendChild(textArea);
+          textArea.select();
+          let success = false;
+          try {
+            success = document.execCommand("copy");
+          } catch (err) {
+            success = false;
+          }
+          document.body.removeChild(textArea);
+          return success;
+        };
+
+        const copyLink = async () => {
+          const statusMessage = "已复制，请粘贴到浏览器打开";
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            try {
+              await navigator.clipboard.writeText(targetUrl);
+              setStatus(statusMessage, true);
+              return;
+            } catch (err) {
+              // Continue to fallback
+            }
+          }
+
+          const fallbackSuccess = fallbackCopy();
+          if (fallbackSuccess) {
+            setStatus(statusMessage, true);
+          } else {
+            setStatus("复制失败，请长按链接手动复制", false);
+          }
+        };
+
+        overlay.hidden = false;
+        document.body.classList.add("wechat-locked");
+        if (statusEl) {
+          statusEl.textContent = "复制后请粘贴到浏览器打开";
+          statusEl.style.color = "#5c3900";
+        }
+        if (copyButton) {
+          copyButton.addEventListener("click", copyLink);
+        }
+      })();
+    </script>
     <script>
       (function () {
         const audioFiles = [
